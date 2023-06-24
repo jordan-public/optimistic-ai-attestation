@@ -4,12 +4,13 @@
     <title>GPT-3.5 Demo</title>
   </head>
   <body>
+    <input id="apikey" placeholder="LLM API KEY"/>
     <textarea
       id="question"
       placeholder="Enter your query"
       rows="10"
-      cols="50"
-    ></textarea>
+      cols="50"></textarea>
+  </textarea>
     <button onclick="queryGPT3()">Query GPT-3.5</button>
     <div id="answer"></div>
     <div id="attestationRequestCID"></div>
@@ -41,7 +42,7 @@
 
       function queryGPT3() {
         const question = document.getElementById("question").value;
-        const apiKey = "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";
+        const apiKey = document.getElementById("apikey").value;
 
         const xhr = new XMLHttpRequest();
         xhr.open("POST", "https://api.openai.com/v1/chat/completions");

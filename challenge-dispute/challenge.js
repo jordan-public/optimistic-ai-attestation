@@ -1,6 +1,7 @@
 import { create } from 'ipfs-http-client';
 const ipfs = create({ host: '127.0.0.1', port: 5001, protocol: 'http' });
 import axios from 'axios';
+import dotenv from 'dotenv';
 
 
 async function addFile(content) {
@@ -21,7 +22,6 @@ async function getFile(cid) {
 }
 
 const cid = process.argv[2];
-console.log(cid);
 getFile(cid)
     .then((r) => {
         const attestationRequest = JSON.parse(r);
@@ -29,7 +29,8 @@ getFile(cid)
         const verificationQuestion = "Here is a question that you were asked and your answer. Respond with only a number from 0 to 1 about the likelihood that this answer was actually produced by you:\n";
         const toVerify = "Question:\n" + attestationRequest.question + "\nAnswer\n";
 
-        const apiKey = "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";
+        dotenv.config({ path: '../.env' });
+        const apiKey = process.env.OPENAI_API_KEY;
 
         const data = {
             model: "gpt-3.5-turbo",
