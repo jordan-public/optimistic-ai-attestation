@@ -120,3 +120,6 @@ GPT3.5-turbo answered:
 ```
 0.9
 ```
+
+Deployment addresses of AIAttestationAsserter:
+Görli: 0x5277e186c1995375132bb559f3E3F94f450bC669
