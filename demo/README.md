@@ -124,4 +124,8 @@ GPT3.5-turbo answered:
 Deployment addresses of AIAttestationAsserter:
 Görli / WETH Bonds: 0x5277e186c1995375132bb559f3E3F94f450bC669
 Gnosis - WETH Bonds: 0x5277e186c1995375132bb559f3E3F94f450bC669
-Plygon Mumbai / WETH Bonds: 
+Plygon Mumbai / WETH Bonds: 0x27c26188E418616172CBe860541029BfE728A1bA
+
+Near BOS front end: https://bos.gg/#/nearjordan.near/widget/AIAttestationRequest
+Static page front end: [../raw-web/AIAttestationRequest.html](../raw-web/AIAttestationRequest.html)
+
