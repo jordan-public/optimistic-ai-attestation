@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>GPT-3.5 Demo</title>
+</head>
+<body>
+  <textarea id="input" placeholder="Enter your query" rows="10" cols="50"></textarea>
+  <button onclick="queryGPT3()">Query GPT-3.5</button>
+  <div id="output"></div>
+
+<script>
+function queryGPT3() {
+  const inputValue = document.getElementById("input").value;
+  const apiKey = "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";
+  
+  const xhr = new XMLHttpRequest();
+  xhr.open("POST", "https://api.openai.com/v1/chat/completions");
+  xhr.setRequestHeader("Content-Type", "application/json");
+  xhr.setRequestHeader("Authorization", "Bearer " + apiKey);
+  
+  const data = JSON.stringify({
+    "model": "gpt-3.5-turbo",
+    "messages": [{"role": "user", "content": inputValue}],
+    "temperature": 0.0,
+  });
+
+  xhr.send(data);
+
+  xhr.onload = function() {
+console.log("xhr", xhr);
+    if (xhr.status === 200) {
+      const response = JSON.parse(xhr.responseText);
+console.log("response", response);
+      const output = response.choices[0].message.content;
+      document.getElementById("output").innerHTML = output;
+    } else {
+      console.log("Error: " + xhr.status);
+    }
+  };
+}
+</script>
+</body>
+</html>
