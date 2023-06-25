@@ -4,6 +4,10 @@
 
 Follow [this link](./demo/README.md) for demo instructions.
 
+## How to deploy and integrate
+
+Follow [this](/HOWTO.md) link.
+
 ## Abstract
 
 Attestation whether a certain AI query was executed, and a specific answer was returned is important to many users. Use cases range from financial accountability, medical record keeping and many other.
