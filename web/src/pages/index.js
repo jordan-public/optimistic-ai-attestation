@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: BUSL-1.1
 import Head from 'next/head'
 import React from 'react'
 import { Box } from '@chakra-ui/react'
