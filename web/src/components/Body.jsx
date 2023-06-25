@@ -83,13 +83,13 @@ console.log("response", response);
 
     const onAttest = async () => {
         try{
-            const dataId = ethers.encodeBytes32String(attestationRequestCID.substring(0,32));
-console.log("dataid", dataId.toStrting())
-            const remaining = attestationRequestCID.substring(32, 46).padEnd(32, ' ');
-            const data = ethers.encodeBytes32String(remaining);
-console.log("data", data.toStrting())
+            const dataId = ethers.encodeBytes32String(attestationRequestCID.slice(0,31));
+            const data = ethers.encodeBytes32String(attestationRequestCID.slice(31));
 
-            const tx = await cAIAttestationAsserter.assertDataFor(dataId, data, address);
+console.log("dataid", dataId)
+console.log("data", data)
+
+            const tx = await onChainInfo.cAIAttestationAsserter.assertDataFor(dataId, data, address, { gasLimit: ethers.parseUnits('10000000', 'wei') });
             const r = await tx.wait()
             // This emits DataAsserted(dataId, data, asserter, assertionId)
             window.alert('Completed. Block hash: ' + r.blockHash);
