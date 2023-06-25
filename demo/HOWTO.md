@@ -60,4 +60,6 @@ node challenge.js <IPFS CID>
 ```
 This script outputs a confidence factor, which would help the voting decisions, and the voting itself can be automated based on the output from the above script.
 
-For all automated participants, they can listen to the event ```DataAsserted(dataId, data, asserter, assertionId)``` to look for new opportunities (found in this repo in ```AIAttestationAsserter```; copied from samples). 
+For all automated participants, they can listen to the event ```DataAsserted(dataId, data, asserter, assertionId)``` to look for new opportunities (found in this repo in ```AIAttestationAsserter```; copied from samples). In this event, the IPFS CID is packed into the fields ```dataId``` and ```data``` concatenated (it's 46 bytes) and padded with spaces. This ```CID``` can be passed as the only parameter to ```challenge.js``` above.
+
+The entire dispute process can be seen on the [UMA dashboard](https://mumbai.oracle.uma.xyz/).
