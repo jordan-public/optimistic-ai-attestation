@@ -39,7 +39,7 @@ There are 3 roles:
 - Type or paste the question.
 - Click on the button labeled "Query GPT-3.5-Turbo". The query will run and produce an answer and IPFD CID below the answers.
 - Click on Request Attestation. The wallet (MetaMask) will ask you to sign the transaction. This transaction pulls the authorized amount as Bond.
-- Once the dispute period is over, Settlement should be automated. 
+- Once the dispute period is over, Settlement should be automated calling ```setSettleAssertion```. 
 
 2. Disputer
 - Pick up the IPFS CID and the which was generated as an event, also available on the web site.
@@ -48,7 +48,7 @@ There are 3 roles:
 cd challenge-dispute
 node challenge.js <IPFS CID>
 ```
-- Dispute the transaction by paying a bond based on th information from the above script.
+- Dispute the transaction by paying a bond based on th information from the above script and calling ```disputeAssertion(bytes32 assertionId, address disputer)```.
 
 
 3. Voter
@@ -59,3 +59,5 @@ cd challenge-dispute
 node challenge.js <IPFS CID>
 ```
 This script outputs a confidence factor, which would help the voting decisions, and the voting itself can be automated based on the output from the above script.
+
+For all automated participants, they can listen to the event ```DataAsserted(dataId, data, asserter, assertionId)``` to look for new opportunities (found in this repo in ```AIAttestationAsserter```; copied from samples). 
