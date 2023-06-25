@@ -1,3 +1,7 @@
+
+
+## Example
+
 The Management Discussion of the SEC 10-Q Filing for Microsoft for Quarter ending on March 31, 2023 can be found [here](https://www.sec.gov/ix?doc=/Archives/edgar/data/789019/000095017023014423/msft-20230331.htm#item_2_managements_discussion_analysis_f).
 
 In it, the "Overview" states the following:
@@ -120,12 +124,3 @@ GPT3.5-turbo answered:
 ```
 0.9
 ```
-
-Deployment addresses of AIAttestationAsserter:
-Görli / WETH Bonds: 0x5277e186c1995375132bb559f3E3F94f450bC669
-Gnosis - WETH Bonds: 0x5277e186c1995375132bb559f3E3F94f450bC669
-Plygon Mumbai / WETH Bonds: 0x27c26188E418616172CBe860541029BfE728A1bA
-
-Near BOS front end: https://bos.gg/#/nearjordan.near/widget/AIAttestationRequest
-Static page front end: [../raw-web/AIAttestationRequest.html](../raw-web/AIAttestationRequest.html)
-
