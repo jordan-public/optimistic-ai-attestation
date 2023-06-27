@@ -26,8 +26,8 @@ getFile(cid)
     .then((r) => {
         const attestationRequest = JSON.parse(r);
 
-        const verificationQuestion = "Here is a question that you were asked and your answer. Respond with only a number from 0 to 1 about the likelihood that this answer was actually produced by you:\n";
-        const toVerify = "Question:\n" + attestationRequest.question + "\nAnswer\n";
+        const verificationQuestion = "Here is a question that you were asked and your answer. Respond with only a number from 0 to 1 and nothing else about the likelihood that this answer was actually produced by you:\n";
+        const toVerify = "Question:\n" + attestationRequest.question + "\nAnswer\n" + attestationRequest.answer;
 
         dotenv.config({ path: '../.env' });
         const apiKey = process.env.OPENAI_API_KEY;
