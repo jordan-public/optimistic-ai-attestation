@@ -19,6 +19,7 @@ export default function Home() {
     </Head>
     <Box bg='black' w='100%' h='100%' p={4} color='white'>
       <TitleBar setSigner={setSigner} address={address} setAddress={setAddress} />
+      <br/>
       <Body signer={signer} address={address} />
     </Box>
   </>)

@@ -1,10 +1,11 @@
 // SPDX-License-Identifier: BUSL-1.1
 import React from 'react';
-import { Textarea, VStack, Input, Button, Box } from '@chakra-ui/react'
+import { Textarea, Text, VStack, HStack, Input, Button, Box } from '@chakra-ui/react'
 import OnChainContext from './OnChainContext'
 import { ethers } from 'ethers'
 import aAIAttestationAsserter from '../artifacts/AIAttestationAsserter.sol/AIAttestationAsserter.json'
 import * as IPFS from 'ipfs-http-client';
+import StressTestAttestation from './StressTestAttestation'
 
 function Body({ signer, address }) {
     const [onChainInfo, setOnChainInfo] = React.useState({});
@@ -113,16 +114,20 @@ console.log("data", data)
         };
     }, [onChainInfo.cAIAttestationAsserter]);
 
-
-
     if (!signer) return(<><br/>Please connect!</>)
     if (!onChainInfo.cAIAttestationAsserter) return("Please wait...")
     return (<OnChainContext.Provider value={onChainInfo} >
         <VStack width='100%' p={4} align='center' borderRadius='md' shadow='lg' bg='gray.700'>
-            <Input type="password" onChange={e => setApiKey(e.target.value)}></Input>
+            <HStack justify='left' width='100%'>
+                <Text>API Key: </Text>
+                <Input type="password" width='30%' onChange={e => setApiKey(e.target.value)}></Input>
+            </HStack>
+            <Text jutify='left' width='100%'>Question: </Text>
             <Textarea size='lg' onChange={e => setQuestion(e.target.value)}></Textarea>
             <Button color='black' bg='red' size='lg' onClick={onQuery}>Query GPT-3.5-Turbo</Button>
-            <Box p={4} borderRadius='md' shadow='lg' bg='gray.700'>{answer}</Box>
+            <Text jutify='left' width='100%'>Answer: </Text>
+            <Box borderWidth='1px' p={4} borderRadius='md' shadow='lg' bg='gray.700'>{answer}</Box>
+            <StressTestAttestation question={question} answer={answer} apiKey={apiKey} />
             <Box p={4} borderRadius='md' shadow='lg' bg='gray.700'>{attestationRequestCID}</Box>
             <Box p={4} borderRadius='md' shadow='lg' bg='gray.700'>{assertionId && assertionId.toString()}</Box>
             <Button color='black' bg='red' size='lg' onClick={onAttest}>Request Attestation</Button>
