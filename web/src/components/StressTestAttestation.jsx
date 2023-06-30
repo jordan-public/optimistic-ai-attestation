@@ -25,7 +25,7 @@ function StressTestAttestation({ question, answer, apiKey }) {
         const data = JSON.stringify({
           model: "gpt-3.5-turbo",
           messages: [{ role: "user", content: prompt }],
-          temperature: 0.0,
+          temperature: temperature / 100.0,
         });
 
         xhr.send(data);
