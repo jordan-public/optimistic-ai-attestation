@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: BUSL-1.1
 import React from 'react';
-import { Select, Textarea, Text, VStack, HStack, Input, Button, Box } from '@chakra-ui/react'
+import { Heading, Select, Textarea, Text, VStack, HStack, Input, Button, Box } from '@chakra-ui/react'
 import OnChainContext from './OnChainContext'
 import { ethers } from 'ethers'
 import aAIAttestationAsserter from '../artifacts/AIAttestationAsserter.sol/AIAttestationAsserter.json'
@@ -130,6 +130,7 @@ console.log("data", data)
     if (!onChainInfo.cAIAttestationAsserter) return("Please wait...")
     return (<OnChainContext.Provider value={onChainInfo} >
         <VStack width='100%' p={4} align='center' borderRadius='md' shadow='lg' bg='black'>
+            <Heading as="h3" size="md">AI Attestation Request</Heading>
             <HStack justify='left' width='100%'>
                 <Box width='50%'>
                     <Text>API Key: </Text>
