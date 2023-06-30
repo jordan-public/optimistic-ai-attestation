@@ -9,7 +9,7 @@ import StressTestAttestation from './StressTestAttestation'
 
 function Body({ signer, address }) {
     const [onChainInfo, setOnChainInfo] = React.useState({});
-    const [apiKey, setApiKey] = React.useState(null);
+    const [apiKey, setApiKey] = React.useState('');
     const [question, setQuestion] = React.useState(null);
     const [answer, setAnswer] = React.useState(null);
     const [attestationRequestCID, setAttestationRequestCID] = React.useState(null);
@@ -44,7 +44,6 @@ function Body({ signer, address }) {
     React.useEffect(() => {
         // Retrieve the stored value from local storage
         const storedValue = localStorage.getItem('apiKey');
-console.log('storedValue', storedValue)
         if (storedValue) {
             setApiKey(storedValue);
         }
@@ -73,7 +72,6 @@ console.log('storedValue', storedValue)
           console.log("xhr", xhr);
           if (xhr.status === 200) {
             const response = JSON.parse(xhr.responseText);
-console.log("response", response);
             const a = response.choices[0].message.content;
             setAnswer(a)
 
@@ -90,7 +88,8 @@ console.log("response", response);
                 })
               .catch(console.error);
           } else {
-            console.log("Error: " + xhr.status);
+            console.log("Error: ", xhr);
+            window.alert("Error: " + xhr.responseText);
           }
         };
     }
@@ -133,7 +132,7 @@ console.log("data", data)
         <VStack width='100%' p={4} align='center' borderRadius='md' shadow='lg' bg='gray.700'>
             <HStack justify='left' width='100%'>
                 <Text>API Key: </Text>
-                <Input type="password" width='30%' onChange={e => setApiKey(e.target.value)}></Input>
+                <Input type="password" width='30%' value={apiKey} onChange={e => setApiKey(e.target.value)}></Input>
             </HStack>
             <Text jutify='left' width='100%'>Question: </Text>
             <Textarea size='lg' onChange={e => setQuestion(e.target.value)}></Textarea>
