@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: BUSL-1.1
 import React from 'react';
-import { Textarea, Text, VStack, HStack, Input, Button, Box } from '@chakra-ui/react'
+import { Select, Textarea, Text, VStack, HStack, Input, Button, Box } from '@chakra-ui/react'
 import OnChainContext from './OnChainContext'
 import { ethers } from 'ethers'
 import aAIAttestationAsserter from '../artifacts/AIAttestationAsserter.sol/AIAttestationAsserter.json'
@@ -14,6 +14,7 @@ function Body({ signer, address }) {
     const [answer, setAnswer] = React.useState(null);
     const [attestationRequestCID, setAttestationRequestCID] = React.useState(null);
     const [assertionId, setAssertionId] = React.useState(null);
+    const [model, setModel] = React.useState('gpt-3.5-turbo');
 
     async function addFile(content) {
         const { path } = await onChainInfo.ipfs.add(content);
@@ -61,7 +62,7 @@ function Body({ signer, address }) {
         xhr.setRequestHeader("Authorization", "Bearer " + apiKey);
 
         const data = JSON.stringify({
-          model: "gpt-3.5-turbo",
+          model: model,
           messages: [{ role: "user", content: question }],
           temperature: 0.0,
         });
@@ -130,17 +131,32 @@ console.log("data", data)
     return (<OnChainContext.Provider value={onChainInfo} >
         <VStack width='100%' p={4} align='center' borderRadius='md' shadow='lg' bg='black'>
             <HStack justify='left' width='100%'>
-                <Text>API Key: </Text>
-                <Input type="password" width='30%' value={apiKey} onChange={e => setApiKey(e.target.value)}></Input>
+                <Box width='50%'>
+                    <Text>API Key: </Text>
+                    <Input type="password" value={apiKey} onChange={e => setApiKey(e.target.value)}></Input>
+                </Box>
+                <Box width='50%'>
+                    <Text>AI Model:</Text>
+                    <Select defaultValue='gpt-3.5-turbo' onChange={event => setModel(event.target.value)}>
+                        <option value='gpt-4'>GPT-4</option>
+                        <option value='gpt-4-0613'>GPT-4 0613</option>
+                        <option value='gpt-4-32k'>GPT-4 32k</option>
+                        <option value='gpt-4-32k-0613'>GPT-4 32k 0613</option>
+                        <option value='gpt-3.5-turbo'>GPT-3.5 Turbo</option>
+                        <option value='gpt-3.5-turbo-0613'>GPT-3.5 Turbo 0613</option>
+                        <option value='gpt-3.5-turbo-16k'>GPT-3.5 Turbo 16k</option>
+                        <option value='gpt-3.5-turbo-16k-0613'>GPT-3.5 Turbo 16k 0613</option>
+                    </Select>
+                </Box>
             </HStack>
             <Text justify='left' width='100%'>Question: </Text>
             <Textarea size='lg' value={question} onChange={e => setQuestion(e.target.value)}></Textarea>
-            <Button color='black' bg='red' size='lg' onClick={onQuery}>Query GPT-3.5-Turbo</Button>
+            <Button color='black' bg='red' size='lg' onClick={onQuery}>Query</Button>
             <Text justify='left' width='100%'>Answer: </Text>
             <Box borderWidth='1px' width='100%' p={4} borderRadius='md' shadow='lg' bg='black'>{answer}</Box>
-            <StressTestAttestation question={question} answer={answer} apiKey={apiKey} />
-            <Box p={4} borderRadius='md' shadow='lg' bg='black'>{attestationRequestCID}</Box>
-            <Box p={4} borderRadius='md' shadow='lg' bg='black'>{assertionId && assertionId.toString()}</Box>
+            <StressTestAttestation question={question} answer={answer} model={model} apiKey={apiKey} />
+            <Box p={4} borderRadius='md' shadow='lg' bg='black'>Q&A CID: {attestationRequestCID ? attestationRequestCID : 'N/A'}</Box>
+            <Box p={4} borderRadius='md' shadow='lg' bg='black'>Attestation ID: {assertionId ? assertionId.toString() : 'N/A'}</Box>
             <Button color='black' bg='red' size='lg' onClick={onAttest}>Request Attestation</Button>
         </VStack>
     </OnChainContext.Provider>);

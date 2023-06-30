@@ -9,9 +9,9 @@ import {
     SliderMark,
   } from '@chakra-ui/react'
 
-function StressTestAttestation({ question, answer, apiKey }) {
+function StressTestAttestation({ question, answer, model, apiKey }) {
     const [temperature, setTemperature] = React.useState(20);
-    const [confidence, setConfidence] = React.useState(null);
+    const [confidence, setConfidence] = React.useState('');
 
     const onTest = async () => {
         const xhr = new XMLHttpRequest();
@@ -23,7 +23,7 @@ function StressTestAttestation({ question, answer, apiKey }) {
         const prompt = verificationQuestion + "Question:\n" + question + "\nAnswer\n" + answer;
 
         const data = JSON.stringify({
-            model: "gpt-3.5-turbo",
+            model: model,
             messages: [{ role: "user", content: prompt }],
             temperature: temperature / 100.0,
         });
@@ -38,7 +38,7 @@ function StressTestAttestation({ question, answer, apiKey }) {
                 setConfidence(a)
             } else {
                 window.alert("Error: " + JSON.parse(xhr.response)?.error?.message);
-                setConfidence('N/A');
+                setConfidence('');
               
             }
         };
@@ -52,7 +52,7 @@ function StressTestAttestation({ question, answer, apiKey }) {
         <SliderThumb />
         </Slider>
         <Button color='black' bg='red' size='lg' onClick={onTest}>Test</Button>
-        <Box p={4} borderRadius='md' shadow='lg' bg='black'>Confidence: {confidence}</Box>
+        <Box p={4} borderRadius='md' shadow='lg' bg='black'>Confidence: {confidence ? confidence : 'N/A'}</Box>
     </Box>);
 }
 
