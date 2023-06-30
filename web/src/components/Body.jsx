@@ -88,8 +88,7 @@ function Body({ signer, address }) {
                 })
               .catch(console.error);
           } else {
-            console.log("Error: ", xhr);
-            window.alert("Error: " + xhr.responseText);
+              window.alert("Error: " + JSON.parse(xhr.response)?.error?.message);
           }
         };
     }
@@ -129,19 +128,19 @@ console.log("data", data)
     if (!signer) return(<><br/>Please connect!</>)
     if (!onChainInfo.cAIAttestationAsserter) return("Please wait...")
     return (<OnChainContext.Provider value={onChainInfo} >
-        <VStack width='100%' p={4} align='center' borderRadius='md' shadow='lg' bg='gray.700'>
+        <VStack width='100%' p={4} align='center' borderRadius='md' shadow='lg' bg='black'>
             <HStack justify='left' width='100%'>
                 <Text>API Key: </Text>
                 <Input type="password" width='30%' value={apiKey} onChange={e => setApiKey(e.target.value)}></Input>
             </HStack>
-            <Text jutify='left' width='100%'>Question: </Text>
-            <Textarea size='lg' onChange={e => setQuestion(e.target.value)}></Textarea>
+            <Text justify='left' width='100%'>Question: </Text>
+            <Textarea size='lg' value={question} onChange={e => setQuestion(e.target.value)}></Textarea>
             <Button color='black' bg='red' size='lg' onClick={onQuery}>Query GPT-3.5-Turbo</Button>
-            <Text jutify='left' width='100%'>Answer: </Text>
-            <Box borderWidth='1px' p={4} borderRadius='md' shadow='lg' bg='gray.700'>{answer}</Box>
+            <Text justify='left' width='100%'>Answer: </Text>
+            <Box borderWidth='1px' width='100%' p={4} borderRadius='md' shadow='lg' bg='black'>{answer}</Box>
             <StressTestAttestation question={question} answer={answer} apiKey={apiKey} />
-            <Box p={4} borderRadius='md' shadow='lg' bg='gray.700'>{attestationRequestCID}</Box>
-            <Box p={4} borderRadius='md' shadow='lg' bg='gray.700'>{assertionId && assertionId.toString()}</Box>
+            <Box p={4} borderRadius='md' shadow='lg' bg='black'>{attestationRequestCID}</Box>
+            <Box p={4} borderRadius='md' shadow='lg' bg='black'>{assertionId && assertionId.toString()}</Box>
             <Button color='black' bg='red' size='lg' onClick={onAttest}>Request Attestation</Button>
         </VStack>
     </OnChainContext.Provider>);

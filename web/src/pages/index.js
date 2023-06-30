@@ -17,7 +17,7 @@ export default function Home() {
       <meta name="viewport" content="width=device-width, initial-scale=1" />
       <link rel="icon" href="/favicon.ico" />
     </Head>
-    <Box bg='black' w='100%' h='100%' p={4} color='white'>
+    <Box bg='gray.700' w='100%' h='100%' p={4} color='white'>
       <TitleBar setSigner={setSigner} address={address} setAddress={setAddress} />
       <br/>
       <Body signer={signer} address={address} />

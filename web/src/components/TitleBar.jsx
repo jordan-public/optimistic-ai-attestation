@@ -70,7 +70,7 @@ function TitleBar({setSigner, address, setAddress}) {
     };
 
     return (
-        <Flex bg='gray.700' width='100%' justify='space-between' borderRadius='md' shadow='lg' align='center' p={2}>
+        <Flex bg='black' width='100%' justify='space-between' borderRadius='md' shadow='lg' align='center' p={2}>
             <Text fontWeight='bold'>AI Attestation Request</Text>
             <HStack>
                 <Text>{address && <span>Address: {address}</span>} { chainId && "Chain Id: " + parseInt(chainId, 16) }</Text>
