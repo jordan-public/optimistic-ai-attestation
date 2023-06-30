@@ -41,6 +41,19 @@ function Body({ signer, address }) {
         }) ();
     }, [signer, address]);
 
+    React.useEffect(() => {
+        // Retrieve the stored value from local storage
+        const storedValue = localStorage.getItem('apiKey');
+console.log('storedValue', storedValue)
+        if (storedValue) {
+            setApiKey(storedValue);
+        }
+    }, []);
+    
+    React.useEffect(() => {
+        // Store the value in local storage when the component unmounts
+        return () => localStorage.setItem('apiKey', apiKey);
+    }, [apiKey]);
 
     const onQuery = async () => {
         const xhr = new XMLHttpRequest();
