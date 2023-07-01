@@ -26,6 +26,9 @@ dependencies:
   ipfs-http-client:
     specifier: ^60.0.1
     version: 60.0.1
+  multiformats:
+    specifier: ^12.0.1
+    version: 12.0.1
   next:
     specifier: 13.4.3
     version: 13.4.3(react-dom@18.2.0)(react@18.2.0)

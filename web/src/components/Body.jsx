@@ -6,15 +6,22 @@ import { ethers } from 'ethers'
 import aAIAttestationAsserter from '../artifacts/AIAttestationAsserter.sol/AIAttestationAsserter.json'
 import * as IPFS from 'ipfs-http-client';
 import StressTestAttestation from './StressTestAttestation'
+import  { CID } from 'multiformats';
+import  { decode } from 'multiformats/hashes/digest';
+
+function toHexString(byteArray) {
+    return Array.from(byteArray, byte => ('0' + (byte & 0xFF).toString(16)).slice(-2)).join('');
+}
 
 function Body({ signer, address }) {
     const [onChainInfo, setOnChainInfo] = React.useState({});
     const [apiKey, setApiKey] = React.useState('');
-    const [question, setQuestion] = React.useState(null);
-    const [answer, setAnswer] = React.useState(null);
+    const [model, setModel] = React.useState('gpt-3.5-turbo');
+    const [question, setQuestion] = React.useState('');
+    const [answer, setAnswer] = React.useState('');
     const [attestationRequestCID, setAttestationRequestCID] = React.useState(null);
     const [assertionId, setAssertionId] = React.useState(null);
-    const [model, setModel] = React.useState('gpt-3.5-turbo');
+    const [dataId, setDataId] = React.useState(null)
 
     async function addFile(content) {
         const { path } = await onChainInfo.ipfs.add(content);
@@ -76,33 +83,50 @@ function Body({ signer, address }) {
             const a = response.choices[0].message.content;
             setAnswer(a)
 
-            const attestationRequest = {question: question, answer: a };
+            const attestationRequest = { question: question, answer: a, model: model };
 
             addFile(JSON.stringify(attestationRequest))
-              .then((cid) => {
-                    console.log("CID: ", cid);
-                    setAttestationRequestCID(cid);
-                
-                    getFile(cid)
-                    .then((r) => console.log("Verification: ", JSON.parse(r)))
-                    .catch(console.error);
-                })
-              .catch(console.error);
+            .then((cid) => {
+                console.log("CID: ", cid);
+                setAttestationRequestCID(cid);
+                const _dataId = CID.parse(cid).bytes.slice(2);
+                setDataId(_dataId);
+
+                // For debugging only - Convert a bytes32 back to a CID and compare
+                let multihashVerify = new Uint8Array(34);
+                multihashVerify.set([0x12, 0x20]);
+                multihashVerify.set(_dataId, 2);
+                const cidVerify = CID.createV0(decode(multihashVerify)).toString();
+                if (cid !== cidVerify) {
+                    console.error("CID encoding mismatch:", cid, cidVerify);
+                    throw new Error("CID encoding mismatch: " + cid + " vs " + cidVerify);
+                }
+            
+                // For debugging only
+                getFile(cid)
+                .then((r) => console.log("Verification: ", JSON.parse(r)))
+                .catch(console.error);
+            })
+            .catch(e => {
+                setAttestationRequestCID(null);
+                setDataId(null);    
+                window.alert(e.toString());
+            });
           } else {
-              window.alert("Error: " + JSON.parse(xhr.response)?.error?.message);
+            setAttestationRequestCID(cid);
+            setDataId(null);
+            window.alert("Error: " + JSON.parse(xhr.response)?.error?.message);
           }
         };
     }
 
     const onAttest = async () => {
+        if (null === dataId) {
+            window.alert('No Attestation. Enter a question and click Query.');
+            return;
+        }
         try{
-            const dataId = ethers.encodeBytes32String(attestationRequestCID.slice(0,31));
-            const data = ethers.encodeBytes32String(attestationRequestCID.slice(31));
-
-console.log("dataid", dataId)
-console.log("data", data)
-
-            const tx = await onChainInfo.cAIAttestationAsserter.assertDataFor(dataId, data, address, { gasLimit: ethers.parseUnits('10000000', 'wei') });
+            const tx = await onChainInfo.cAIAttestationAsserter.assertDataFor(dataId, new Uint8Array(32)/*true data*/, address, { gasLimit: ethers.parseUnits('10000000', 'wei') });
             const r = await tx.wait()
             // This emits DataAsserted(dataId, data, asserter, assertionId)
             window.alert('Completed. Block hash: ' + r.blockHash);
@@ -113,18 +137,25 @@ console.log("data", data)
     }
 
     React.useEffect(() => {
-        if (!onChainInfo.cAIAttestationAsserter) return;
+        if (!onChainInfo.cAIAttestationAsserter || dataId === null) return;
         // Listening for DataAsserted event
-        const event = onChainInfo.cAIAttestationAsserter.filters.DataAsserted(); // Define event filter
-        const listener = onChainInfo.cAIAttestationAsserter.on(event, async (dataId, data, asserter, _assertionId, e) => {
+
+        const filter = onChainInfo.cAIAttestationAsserter.filters.DataAsserted(dataId, null, null, null);
+    
+        const listener = (_dataId, _data, _asserter, _assertionId, e) => {
+if (_dataId !== dataId) console.error('Data ID mismatch from event. Data ID', dataId, 'vs', _dataId);
             setAssertionId(_assertionId);
-        });
+console.log('DataAsserted emitted with Assertion ID: ', _assertionId);
+        }
+       
+        onChainInfo.cAIAttestationAsserter.on(filter, listener);
+console.log('Listening to DataAsserted');
 
         // Clean up the effect
         return () => {
-            onChainInfo.cAIAttestationAsserter.off(event, listener);
+            onChainInfo.cAIAttestationAsserter.off(filter, listener);
         };
-    }, [onChainInfo.cAIAttestationAsserter]);
+    }, [onChainInfo.cAIAttestationAsserter, dataId]);
 
     if (!signer) return(<><br/>Please connect!</>)
     if (!onChainInfo.cAIAttestationAsserter) return("Please wait...")
@@ -157,8 +188,9 @@ console.log("data", data)
             <Box borderWidth='1px' width='100%' p={4} borderRadius='md' shadow='lg' bg='black'>{answer}</Box>
             <StressTestAttestation question={question} answer={answer} model={model} apiKey={apiKey} />
             <Box p={4} borderRadius='md' shadow='lg' bg='black'>Q&A CID: {attestationRequestCID ? attestationRequestCID : 'N/A'}</Box>
-            <Box p={4} borderRadius='md' shadow='lg' bg='black'>Attestation ID: {assertionId ? assertionId.toString() : 'N/A'}</Box>
+            <Box p={4} borderRadius='md' shadow='lg' bg='black'>Data ID: {dataId ? toHexString(dataId) : 'N/A'}</Box>
             <Button color='black' bg='red' size='lg' onClick={onAttest}>Request Attestation</Button>
+            <Box p={4} borderRadius='md' shadow='lg' bg='black'>Attestation ID: {assertionId ? assertionId.toString() : 'N/A'}</Box>
         </VStack>
     </OnChainContext.Provider>);
 }
