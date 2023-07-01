@@ -53,6 +53,7 @@ function Body({ signer, address }) {
                 case 100n: contractAddress = "0x5277e186c1995375132bb559f3E3F94f450bC669"; // Gnosis
                 break;
             }
+console.log('AI Attestation Asserter contract address:', contractAddress)
             const cAIAttestationAsserter = new ethers.Contract(contractAddress, aAIAttestationAsserter.abi, signer);
             setOnChainInfo({signer: signer, address: address, ipfs: ipfs, cAIAttestationAsserter: cAIAttestationAsserter });
         }) ();
@@ -117,13 +118,11 @@ function Body({ signer, address }) {
                 .catch(console.error);
             })
             .catch(e => {
-                setAttestationRequestCID(null);
-                setDataId(null);    
+                clearAssertion();    
                 window.alert(e.toString());
             });
           } else {
-            setAttestationRequestCID(cid);
-            setDataId(null);
+            clearAssertion();
             window.alert("Error: " + JSON.parse(xhr.response)?.error?.message);
           }
         };
@@ -135,9 +134,14 @@ function Body({ signer, address }) {
             return;
         }
         try{
-            const tx = await onChainInfo.cAIAttestationAsserter.assertDataFor(dataId, new Uint8Array(32)/*true data*/, address, { gasLimit: ethers.parseUnits('10000000', 'wei') });
+            const trueValue = '0x0000000000000000000000000000000000000000000000000000000000000001';
+            const _assertionId = await onChainInfo.cAIAttestationAsserter.assertDataFor.staticCall(dataId, trueValue/*true data*/, address, { gasLimit: ethers.parseUnits('10000000', 'wei') });
+console.log('Assertion ID set from static call:', _assertionId)
+            // !!! Warning: there could be another call between the above and the next line. This is just a workaround for testnet RPCs not (timely) delivering EVM events
+            const tx = await onChainInfo.cAIAttestationAsserter.assertDataFor(dataId, trueValue/*true data*/, address, { gasLimit: ethers.parseUnits('10000000', 'wei') });
             const r = await tx.wait()
             // This emits DataAsserted(dataId, data, asserter, assertionId)
+            setAssertionId(_assertionId);
             window.alert('Completed. Block hash: ' + r.blockHash);
         } catch(e) {
             window.alert(e.message + "\n" + (e.data?e.data.message:""))
@@ -152,8 +156,9 @@ function Body({ signer, address }) {
         const filter = onChainInfo.cAIAttestationAsserter.filters.DataAsserted(dataId, null, null, null);
     
         const listener = (e) => {
-if (e.args.dataId !== dataId) console.error('Data ID mismatch from event. Data ID', dataId, 'vs', e.args._dataId);
+if (e.args.dataId.slice(2) !== toHexString(dataId)) console.error('Data ID mismatch from event. Data ID:', toHexString(dataId), 'vs event Data ID:', e.args.dataId.slice(2));
             setAssertionId(e.args.assertionId);
+console.log('Assertion ID set from event:', e.args.assertionId);
         }
        
         onChainInfo.cAIAttestationAsserter.on(filter, listener);
@@ -163,6 +168,13 @@ if (e.args.dataId !== dataId) console.error('Data ID mismatch from event. Data I
             onChainInfo.cAIAttestationAsserter.off(filter, listener);
         };
     }, [onChainInfo.cAIAttestationAsserter, dataId]);
+
+    const clearAssertion = () => {
+        setDataId(null);
+        setAssertionId(null);
+        setAttestationRequestCID(null);
+        setAnswer('');
+    }
 
     if (!signer) return(<><br/>Please connect!</>)
     if (!onChainInfo.cAIAttestationAsserter) return("Please wait...")
@@ -176,7 +188,7 @@ if (e.args.dataId !== dataId) console.error('Data ID mismatch from event. Data I
                 </Box>
                 <Box width='50%'>
                     <Text>AI Model:</Text>
-                    <Select defaultValue='gpt-3.5-turbo' onChange={event => setModel(event.target.value)}>
+                    <Select defaultValue='gpt-3.5-turbo' onChange={event => { setModel(event.target.value); clearAssertion() }}>
                         <option value='gpt-4'>GPT-4</option>
                         <option value='gpt-4-0613'>GPT-4 0613</option>
                         <option value='gpt-4-32k'>GPT-4 32k</option>
@@ -189,7 +201,7 @@ if (e.args.dataId !== dataId) console.error('Data ID mismatch from event. Data I
                 </Box>
             </HStack>
             <Text justify='left' width='100%'>Question: </Text>
-            <Textarea size='lg' value={question} onChange={e => setQuestion(e.target.value)}></Textarea>
+            <Textarea size='lg' value={question} onChange={e => { setQuestion(e.target.value); clearAssertion() }}></Textarea>
             <Button color='black' bg='red' size='lg' onClick={onQuery}>Query</Button>
             <Text justify='left' width='100%'>Answer: </Text>
             <Box borderWidth='1px' width='100%' p={4} borderRadius='md' shadow='lg' bg='black'>{answer}</Box>
