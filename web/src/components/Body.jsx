@@ -1,13 +1,14 @@
 // SPDX-License-Identifier: BUSL-1.1
 import React from 'react';
 import { Heading, Select, Textarea, Text, VStack, HStack, Input, Button, Box } from '@chakra-ui/react'
-import OnChainContext from './OnChainContext'
 import { ethers } from 'ethers'
 import aAIAttestationAsserter from '../artifacts/AIAttestationAsserter.sol/AIAttestationAsserter.json'
 import * as IPFS from 'ipfs-http-client';
 import StressTestAttestation from './StressTestAttestation'
 import  { CID } from 'multiformats';
 import  { decode } from 'multiformats/hashes/digest';
+import OnChainContext from './OnChainContext'
+import { getFile, addFile } from './IPFSRW'
 
 function toHexString(byteArray) {
     return Array.from(byteArray, byte => ('0' + (byte & 0xFF).toString(16)).slice(-2)).join('');
@@ -22,23 +23,6 @@ function Body({ signer, address }) {
     const [attestationRequestCID, setAttestationRequestCID] = React.useState(null);
     const [assertionId, setAssertionId] = React.useState(null);
     const [dataId, setDataId] = React.useState(null)
-
-    async function addFile(content) {
-        const { path } = await onChainInfo.ipfs.add(content);
-        await onChainInfo.ipfs.pin.add(path);
-        return path;
-    }
-    
-    async function getFile(cid) {
-        const stream = onChainInfo.ipfs.cat(cid);
-        let data = "";
-    
-        for await (const chunk of stream) {
-          data += new TextDecoder().decode(chunk);
-        }
-    
-        return data;
-    }
 
     React.useEffect(() => {
         if (!signer) return;
@@ -87,7 +71,6 @@ console.log('AI Attestation Asserter contract address:', contractAddress)
         xhr.send(data);
 
         xhr.onload = function () {
-          console.log("xhr", xhr);
           if (xhr.status === 200) {
             const response = JSON.parse(xhr.responseText);
             const a = response.choices[0].message.content;
@@ -95,7 +78,7 @@ console.log('AI Attestation Asserter contract address:', contractAddress)
 
             const attestationRequest = { question: question, answer: a, model: model };
 
-            addFile(JSON.stringify(attestationRequest))
+            addFile(JSON.stringify(attestationRequest), onChainInfo.ipfs)
             .then((cid) => {
                 console.log("CID: ", cid);
                 setAttestationRequestCID(cid);
@@ -113,7 +96,7 @@ console.log('AI Attestation Asserter contract address:', contractAddress)
                 }
             
                 // For debugging only
-                getFile(cid)
+                getFile(cid, onChainInfo.ipfs)
                 .then((r) => console.log("Verification: ", JSON.parse(r)))
                 .catch(console.error);
             })
