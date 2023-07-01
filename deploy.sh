@@ -11,4 +11,4 @@ source .env
 #forge script script/AIAttestationAsserter.s.sol:Deploy --rpc-url "https://rpc.gnosischain.com" --broadcast -vvvv
 
 # Anvil - local testnet
-forge script script/AIAttestationAsserter.s.sol:Deploy --rpc-url "http://127.0.0.1:" --broadcast -vvvv
+forge script script/AIAttestationAsserter.s.sol:Deploy --rpc-url "http://127.0.0.1:8545" --broadcast -vvvv
