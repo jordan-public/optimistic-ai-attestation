@@ -44,7 +44,16 @@ function Body({ signer, address }) {
         if (!signer) return;
         (async () => {
             const ipfs = await IPFS.create("http://localhost:5001")
-            const cAIAttestationAsserter = new ethers.Contract("0x27c26188E418616172CBe860541029BfE728A1bA", aAIAttestationAsserter.abi, signer);
+            let contractAddress = 0;
+            switch ((await signer.provider.getNetwork()).chainId) {
+                case 5n: contractAddress = "0x5277e186c1995375132bb559f3E3F94f450bC669"; // Görli
+                break;
+                case 80001n: contractAddress = "0x27c26188E418616172CBe860541029BfE728A1bA"; // Mumbai
+                break;
+                case 100n: contractAddress = "0x5277e186c1995375132bb559f3E3F94f450bC669"; // Gnosis
+                break;
+            }
+            const cAIAttestationAsserter = new ethers.Contract(contractAddress, aAIAttestationAsserter.abi, signer);
             setOnChainInfo({signer: signer, address: address, ipfs: ipfs, cAIAttestationAsserter: cAIAttestationAsserter });
         }) ();
     }, [signer, address]);
@@ -142,14 +151,12 @@ function Body({ signer, address }) {
 
         const filter = onChainInfo.cAIAttestationAsserter.filters.DataAsserted(dataId, null, null, null);
     
-        const listener = (_dataId, _data, _asserter, _assertionId, e) => {
-if (_dataId !== dataId) console.error('Data ID mismatch from event. Data ID', dataId, 'vs', _dataId);
-            setAssertionId(_assertionId);
-console.log('DataAsserted emitted with Assertion ID: ', _assertionId);
+        const listener = (e) => {
+if (e.args.dataId !== dataId) console.error('Data ID mismatch from event. Data ID', dataId, 'vs', e.args._dataId);
+            setAssertionId(e.args.assertionId);
         }
        
         onChainInfo.cAIAttestationAsserter.on(filter, listener);
-console.log('Listening to DataAsserted');
 
         // Clean up the effect
         return () => {
