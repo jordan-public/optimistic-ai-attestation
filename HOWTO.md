@@ -6,8 +6,9 @@ Gnosis - WETH Bonds: 0x5277e186c1995375132bb559f3E3F94f450bC669
 
 Plygon Mumbai / WETH Bonds: 0x27c26188E418616172CBe860541029BfE728A1bA
 
-Near BOS front end: https://bos.gg/#/nearjordan.near/widget/AIAttestationRequest
-Static page front end: [../raw-web/AIAttestationRequest.html](../raw-web/AIAttestationRequest.html)
+Near BOS front end (coming soon): https://bos.gg/#/nearjordan.near/widget/AIAttestationRequest
+
+Static page front end (coming soon): [../raw-web/AIAttestationRequest.html](../raw-web/AIAttestationRequest.html)
 
 ## How to install
 
@@ -23,9 +24,19 @@ cd optimistic-ai-attestation
 ```
 cd web
 pnpm install
+cd ../challenge-dispute
+pnpm install
 ```
 
-3. Run the front-end locally
+3. Make sure the values are properly set up in the ```.env``` file. Copy the ```.env.example``` and update the following values:
+```
+MNEMONIC
+OPENAI_API_KEY
+CHAIN_ID
+RPC
+```
+
+4. Run the front-end locally
 ```
 pnpm dev
 ```
@@ -42,21 +53,21 @@ There are 3 roles:
 - Once the dispute period is over, Settlement should be automated calling ```setSettleAssertion```. 
 
 2. Disputer
-- Pick up the IPFS CID and the which was generated as an event, also available on the web site.
+- Pick up the Attestation ID and the which was generated as an event, also available on the web site.
 - Run the utility:
 ```
 cd challenge-dispute
-node challenge.js <IPFS CID>
+node challenge.js <Attestation ID>
 ```
 - Dispute the transaction by paying a bond based on th information from the above script and calling ```disputeAssertion(bytes32 assertionId, address disputer)```.
 
 
 3. Voter
-- Pick up the IPFS CID and the which was generated as an event, also available on the web site.
+- Pick up the Attestation ID and the which was generated as an event, also available on the web site.
 - Run the utility:
 ```
 cd challenge-dispute
-node challenge.js <IPFS CID>
+node challenge.js <Attestation ID>
 ```
 This script outputs a confidence factor, which would help the voting decisions, and the voting itself can be automated based on the output from the above script.
 
