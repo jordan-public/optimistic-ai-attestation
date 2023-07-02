@@ -5,18 +5,21 @@ import { ethers } from 'ethers';
 import  { CID } from 'multiformats';
 import  { decode } from 'multiformats/hashes/digest';
 import OnChainContext from './OnChainContext';
-import { getFile, addFile, uint8ArrayToHexString, hexStringToUint8Array } from './Utils'
+import { getFile, addFile, uint8ArrayToHexString, hexStringToUint8Array, bytes32StringToCID, cidToBytes32String } from './Utils'
 
 function ManageAttestation({ assertionId, setDataId, setAttestationRequestCID, setModel, setQuestion, setAnswer }) {
     const onChainInfo = React.useContext(OnChainContext);
 
     React.useEffect(() => {
         (async () => {
+            try {
             const dataAsserted = await onChainInfo.cAIAttestationAsserter.assertionsData(assertionId);
             setDataId(dataAsserted.dataId);
+
 console.log('dataAsserted', dataAsserted)
 console.log('dataAsserted.dataId', dataAsserted.dataId)
             //cOptimisticOracleV3Interface.
+            } catch(e) { console.error(e) }
         }) ();
     }, [assertionId]);
 

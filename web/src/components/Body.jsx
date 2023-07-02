@@ -10,7 +10,7 @@ import  { CID } from 'multiformats';
 import  { decode } from 'multiformats/hashes/digest';
 import OnChainContext from './OnChainContext';
 import ManageAttestation from './ManageAttestation';
-import { getFile, addFile, uint8ArrayToHexString, hexStringToUint8Array } from './Utils'
+import { getFile, addFile, uint8ArrayToHexString, hexStringToUint8Array, bytes32StringToCID, cidToBytes32String } from './Utils'
 
 function Body({ signer, address }) {
     const [onChainInfo, setOnChainInfo] = React.useState({});
@@ -83,14 +83,11 @@ console.log('Optimistic OracleV3 address:', oo);
             .then((cid) => {
                 console.log("CID: ", cid);
                 setAttestationRequestCID(cid);
-                const _dataId = '0x' + uint8ArrayToHexString(CID.parse(cid).bytes.slice(2));
+                const _dataId = cidToBytes32String(cid);
                 setDataId(_dataId);
 
                 // For debugging only - Convert a bytes32 back to a CID and compare
-                let multihashVerify = new Uint8Array(34);
-                multihashVerify.set([0x12, 0x20]);
-                multihashVerify.set(hexStringToUint8Array(_dataId.slice(2)), 2);
-                const cidVerify = CID.createV0(decode(multihashVerify)).toString();
+                const cidVerify = bytes32StringToCID(_dataId);
                 if (cid !== cidVerify) {
                     console.error("CID encoding mismatch:", cid, cidVerify);
                     throw new Error("CID encoding mismatch: " + cid + " vs " + cidVerify);

@@ -1,3 +1,5 @@
+import  { CID } from 'multiformats';
+
 export async function addFile(content, ipfs) {
     const { path } = await ipfs.add(content);
     await ipfs.pin.add(path);
@@ -32,4 +34,15 @@ export function hexStringToUint8Array(hexString) {
     }
 
     return bytes;
+}
+
+export function bytes32StringToCID(bytes32) {
+    let multihashVerify = new Uint8Array(34);
+    multihashVerify.set([0x12, 0x20]);
+    multihashVerify.set(hexStringToUint8Array(bytes32.slice(2)), 2);
+    return CID.createV0(decode(multihashVerify)).toString();
+}
+
+export function cidToBytes32String(cid) {
+    return '0x' + uint8ArrayToHexString(CID.parse(cid).bytes.slice(2));               
 }
