@@ -128,7 +128,6 @@ console.log('Assertion ID set from static call:', _assertionId)
         } catch(e) {
             window.alert(e.message + "\n" + (e.data?e.data.message:""))
         }
-
     }
 
     React.useEffect(() => {

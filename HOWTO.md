@@ -8,8 +8,6 @@ Plygon Mumbai / WETH Bonds: 0x27c26188E418616172CBe860541029BfE728A1bA
 
 Near BOS front end (coming soon): https://bos.gg/#/nearjordan.near/widget/AIAttestationRequest
 
-Static page front end (coming soon): [../raw-web/AIAttestationRequest.html](../raw-web/AIAttestationRequest.html)
-
 ## How to install
 
 1. Clone this repo and the dependency submodules and go to that folder:
@@ -36,7 +34,16 @@ CHAIN_ID
 RPC
 ```
 
-4. Run the front-end locally
+4. To run on a local fork of a blockchain, set the ```FORK_RPC``` variable in the ```.env``` file, deploy the contract from the main project directory:
+```
+./deploy.sh
+```
+and run the following:
+```
+./anvil.sh
+```
+
+5. Run the front-end locally
 ```
 pnpm dev
 ```
@@ -50,7 +57,7 @@ There are 3 roles:
 - Type or paste the question.
 - Click on the button labeled "Query GPT-3.5-Turbo". The query will run and produce an answer and IPFD CID below the answers.
 - Click on Request Attestation. The wallet (MetaMask) will ask you to sign the transaction. This transaction pulls the authorized amount as Bond.
-- Once the dispute period is over, Settlement should be automated calling ```setSettleAssertion```. 
+- Once the dispute period is over, Settlement should be automated calling ```setSettleAssertion``` ot by clicking on the button "Settle".
 
 2. Disputer
 - Pick up the Attestation ID and the which was generated as an event, also available on the web site.
@@ -60,7 +67,6 @@ cd challenge-dispute
 node challenge.js <Attestation ID>
 ```
 - Dispute the transaction by paying a bond based on th information from the above script and calling ```disputeAssertion(bytes32 assertionId, address disputer)```.
-
 
 3. Voter
 - Pick up the Attestation ID and the which was generated as an event, also available on the web site.
