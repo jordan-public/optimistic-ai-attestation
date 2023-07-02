@@ -1,18 +1,16 @@
 // SPDX-License-Identifier: BUSL-1.1
 import React from 'react';
-import { Heading, Select, Textarea, Text, VStack, HStack, Input, Button, Box } from '@chakra-ui/react'
-import { ethers } from 'ethers'
-import aAIAttestationAsserter from '../artifacts/AIAttestationAsserter.sol/AIAttestationAsserter.json'
+import { Heading, Select, Textarea, Text, VStack, HStack, Input, Button, Box } from '@chakra-ui/react';
+import { ethers } from 'ethers';
+import aAIAttestationAsserter from '../artifacts/AIAttestationAsserter.sol/AIAttestationAsserter.json';
+import aOptimisticOracleV3Interface from '../artifacts/OptimisticOracleV3Interface.sol/OptimisticOracleV3Interface.json';
 import * as IPFS from 'ipfs-http-client';
-import StressTestAttestation from './StressTestAttestation'
+import StressTestAttestation from './StressTestAttestation';
 import  { CID } from 'multiformats';
 import  { decode } from 'multiformats/hashes/digest';
-import OnChainContext from './OnChainContext'
-import { getFile, addFile } from './IPFSRW'
-
-function toHexString(byteArray) {
-    return Array.from(byteArray, byte => ('0' + (byte & 0xFF).toString(16)).slice(-2)).join('');
-}
+import OnChainContext from './OnChainContext';
+import ManageAttestation from './ManageAttestation';
+import { getFile, addFile, uint8ArrayToHexString, hexStringToUint8Array } from './Utils'
 
 function Body({ signer, address }) {
     const [onChainInfo, setOnChainInfo] = React.useState({});
@@ -21,7 +19,7 @@ function Body({ signer, address }) {
     const [question, setQuestion] = React.useState('');
     const [answer, setAnswer] = React.useState('');
     const [attestationRequestCID, setAttestationRequestCID] = React.useState(null);
-    const [assertionId, setAssertionId] = React.useState(null);
+    const [assertionId, setAssertionId] = React.useState('');
     const [dataId, setDataId] = React.useState(null)
 
     React.useEffect(() => {
@@ -39,7 +37,10 @@ function Body({ signer, address }) {
             }
 console.log('AI Attestation Asserter contract address:', contractAddress)
             const cAIAttestationAsserter = new ethers.Contract(contractAddress, aAIAttestationAsserter.abi, signer);
-            setOnChainInfo({signer: signer, address: address, ipfs: ipfs, cAIAttestationAsserter: cAIAttestationAsserter });
+            const oo = await cAIAttestationAsserter.oo();
+console.log('Optimistic OracleV3 address:', oo);
+            const cOptimisticOracleV3Interface = new ethers.Contract(oo, aOptimisticOracleV3Interface.abi, signer);
+            setOnChainInfo({signer: signer, address: address, ipfs: ipfs, cAIAttestationAsserter: cAIAttestationAsserter, cOptimisticOracleV3Interface: cOptimisticOracleV3Interface });
         }) ();
     }, [signer, address]);
 
@@ -82,20 +83,20 @@ console.log('AI Attestation Asserter contract address:', contractAddress)
             .then((cid) => {
                 console.log("CID: ", cid);
                 setAttestationRequestCID(cid);
-                const _dataId = CID.parse(cid).bytes.slice(2);
+                const _dataId = '0x' + uint8ArrayToHexString(CID.parse(cid).bytes.slice(2));
                 setDataId(_dataId);
 
                 // For debugging only - Convert a bytes32 back to a CID and compare
                 let multihashVerify = new Uint8Array(34);
                 multihashVerify.set([0x12, 0x20]);
-                multihashVerify.set(_dataId, 2);
+                multihashVerify.set(hexStringToUint8Array(_dataId.slice(2)), 2);
                 const cidVerify = CID.createV0(decode(multihashVerify)).toString();
                 if (cid !== cidVerify) {
                     console.error("CID encoding mismatch:", cid, cidVerify);
                     throw new Error("CID encoding mismatch: " + cid + " vs " + cidVerify);
                 }
             
-                // For debugging only
+                // For debugging only - read from IPFS and verify
                 getFile(cid, onChainInfo.ipfs)
                 .then((r) => console.log("Verification: ", JSON.parse(r)))
                 .catch(console.error);
@@ -117,11 +118,12 @@ console.log('AI Attestation Asserter contract address:', contractAddress)
             return;
         }
         try{
-            const trueValue = '0x0000000000000000000000000000000000000000000000000000000000000001';
-            const _assertionId = await onChainInfo.cAIAttestationAsserter.assertDataFor.staticCall(dataId, trueValue/*true data*/, address, { gasLimit: ethers.parseUnits('10000000', 'wei') });
+            const data = '0x' + uint8ArrayToHexString((new TextEncoder()).encode('node challenge.js <DataID>      '));
+console.log('data', data);
+            const _assertionId = await onChainInfo.cAIAttestationAsserter.assertDataFor.staticCall(dataId, data, address, { gasLimit: ethers.parseUnits('10000000', 'wei') });
 console.log('Assertion ID set from static call:', _assertionId)
             // !!! Warning: there could be another call between the above and the next line. This is just a workaround for testnet RPCs not (timely) delivering EVM events
-            const tx = await onChainInfo.cAIAttestationAsserter.assertDataFor(dataId, trueValue/*true data*/, address, { gasLimit: ethers.parseUnits('10000000', 'wei') });
+            const tx = await onChainInfo.cAIAttestationAsserter.assertDataFor(dataId, data, address, { gasLimit: ethers.parseUnits('10000000', 'wei') });
             const r = await tx.wait()
             // This emits DataAsserted(dataId, data, asserter, assertionId)
             setAssertionId(_assertionId);
@@ -139,7 +141,7 @@ console.log('Assertion ID set from static call:', _assertionId)
         const filter = onChainInfo.cAIAttestationAsserter.filters.DataAsserted(dataId, null, null, null);
     
         const listener = (e) => {
-if (e.args.dataId.slice(2) !== toHexString(dataId)) console.error('Data ID mismatch from event. Data ID:', toHexString(dataId), 'vs event Data ID:', e.args.dataId.slice(2));
+if (e.args.dataId !== dataId) console.error('Data ID mismatch from event. Data ID:', dataId, 'vs event Data ID:', e.args.dataId);
             setAssertionId(e.args.assertionId);
 console.log('Assertion ID set from event:', e.args.assertionId);
         }
@@ -153,8 +155,8 @@ console.log('Assertion ID set from event:', e.args.assertionId);
     }, [onChainInfo.cAIAttestationAsserter, dataId]);
 
     const clearAssertion = () => {
+        setAssertionId('');
         setDataId(null);
-        setAssertionId(null);
         setAttestationRequestCID(null);
         setAnswer('');
     }
@@ -190,9 +192,13 @@ console.log('Assertion ID set from event:', e.args.assertionId);
             <Box borderWidth='1px' width='100%' p={4} borderRadius='md' shadow='lg' bg='black'>{answer}</Box>
             <StressTestAttestation question={question} answer={answer} model={model} apiKey={apiKey} />
             <Box p={4} borderRadius='md' shadow='lg' bg='black'>Q&A CID: {attestationRequestCID ? attestationRequestCID : 'N/A'}</Box>
-            <Box p={4} borderRadius='md' shadow='lg' bg='black'>Data ID: {dataId ? toHexString(dataId) : 'N/A'}</Box>
+            <Box p={4} borderRadius='md' shadow='lg' bg='black'>Data ID: {dataId ? dataId : 'N/A'}</Box>
             <Button color='black' bg='red' size='lg' onClick={onAttest}>Request Attestation</Button>
-            <Box p={4} borderRadius='md' shadow='lg' bg='black'>Attestation ID: {assertionId ? assertionId.toString() : 'N/A'}</Box>
+            <Box width='70%'>
+                    <Text>Attestation ID: </Text>
+                    <Input value={assertionId} onChange={e => setAssertionId(e.target.value)}></Input>
+                </Box>
+            <ManageAttestation assertionId={assertionId} setDataId={setDataId} setAttestationRequestCID={setAttestationRequestCID} setModel={setModel} setQuestion={setQuestion} setAnswer={setAnswer} />
         </VStack>
     </OnChainContext.Provider>);
 }
