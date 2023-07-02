@@ -4,7 +4,7 @@
 
 🥇 [UMA — Best Use](https://ethglobal.com/showcase/umaia-optimistic-ai-attestation-3a96d)
 
-# UMAIA - Optimistic AI Attestations
+# UMAIA - Optimistic AI Attestation
 
 ## Demo
 
@@ -26,7 +26,7 @@ Imagine a fund submitting a financial report from a public company to a Large La
 
 Imagine a physician using an LLM for diagnosis assistance. In case of an incorrect diagnosis, the physician could be liable, but there is a difference between misconduct and honest error. In order to delineate between the two and avoid accusations, an attestation of the LLM query and answer would help.
 
-This work provides an user interface for querying a chosen LLM, and automatic generation of attestations recorder on a blockchain.
+This work provides an user interface for querying a chosen LLM, and automatic generation of attestations recorded on a blockchain.
 
 ## Problems
 
@@ -49,7 +49,7 @@ To solve the above issues, an Optimistic Oracle us used. This Optimistic Oracle 
 
 This solution allows for fuzzy decision making, namely when LLM answer cannot be executed. Still the **dispute process should not be manual** in practice. To achieve this, the LLM queries are engineered in the following way:
 - The requesters query Q produces an answer A. This is recorded in the request.
-- The dispute resolution voting members run automated jobs. Each job asks the LLM the question: "When asked Q you answered A. Is this correct? Rate the correctness and answer with a number between 0 and 1, which estimates the likelyhood of correctness.". The automated job could then vote on the basis of the returned number.
+- The dispute resolution voting members run automated jobs. Each job asks the LLM the question: "When asked Q you answered A. Is this correct? Rate the correctness and answer with a number between 0 and 1, which estimates the likelihood of correctness.". The automated job could then vote on the basis of the returned number.
 
 ## Implementation
 
