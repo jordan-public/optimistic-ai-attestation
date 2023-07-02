@@ -1,4 +1,5 @@
 import  { CID } from 'multiformats';
+import  { decode } from 'multiformats/hashes/digest';
 
 export async function addFile(content, ipfs) {
     const { path } = await ipfs.add(content);

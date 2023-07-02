@@ -170,7 +170,7 @@ console.log('Assertion ID set from event:', e.args.assertionId);
                 </Box>
                 <Box width='50%'>
                     <Text>AI Model:</Text>
-                    <Select defaultValue='gpt-3.5-turbo' onChange={event => { setModel(event.target.value); clearAssertion() }}>
+                    <Select defaultValue='gpt-3.5-turbo' value={model} onChange={event => { setModel(event.target.value); clearAssertion() }}>
                         <option value='gpt-4'>GPT-4</option>
                         <option value='gpt-4-0613'>GPT-4 0613</option>
                         <option value='gpt-4-32k'>GPT-4 32k</option>

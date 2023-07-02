@@ -15,11 +15,20 @@ function ManageAttestation({ assertionId, setDataId, setAttestationRequestCID, s
             try {
             const dataAsserted = await onChainInfo.cAIAttestationAsserter.assertionsData(assertionId);
             setDataId(dataAsserted.dataId);
-
-console.log('dataAsserted', dataAsserted)
-console.log('dataAsserted.dataId', dataAsserted.dataId)
+            const cid = bytes32StringToCID(dataAsserted.dataId);
+            setAttestationRequestCID(cid);
+            const attestationRequest = JSON.parse(await getFile(cid, onChainInfo.ipfs));
+            setModel(attestationRequest.model);
+            setQuestion(attestationRequest.question);
+            setAnswer(attestationRequest.answer);
             //cOptimisticOracleV3Interface.
-            } catch(e) { console.error(e) }
+            } catch(e) { 
+                setDataId(null);
+                setAttestationRequestCID(null);
+                //setModel(attestationRequest.model);
+                setQuestion('');
+                setAnswer('');
+            }
         }) ();
     }, [assertionId]);
 
