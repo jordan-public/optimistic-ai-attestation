@@ -1,3 +1,9 @@
+[This project](https://ethglobal.com/showcase/umaia-optimistic-ai-attestation-3a96d) won the following prizes at the [ETHGlobal Waterloo 2023](https://ethglobal.com/events/waterloo2023) hackathon:
+
+8️⃣ [FVM — Top 8](https://ethglobal.com/showcase/umaia-optimistic-ai-attestation-3a96d)
+
+🥇 [UMA — Best Use](https://ethglobal.com/showcase/umaia-optimistic-ai-attestation-3a96d)
+
 # UMAIA - Optimistic AI Attestations
 
 ## Demo
