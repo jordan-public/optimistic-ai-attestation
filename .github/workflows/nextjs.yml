@@ -62,7 +62,7 @@ jobs:
         run: |
           cd web
           pnpm next build
-          touch out/.nojekyll
+          touch ./out/.nojekyll
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v1
         with:
