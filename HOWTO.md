@@ -43,9 +43,18 @@ and run the following:
 ./anvil.sh
 ```
 
-5. Run the front-end locally
+5. Run the front-end
+
+Locally:
 ```
+cd web
 pnpm dev
+```
+
+or build to deploy it as static content generated in the ```web/out``` folder of the project:
+```
+cd web
+./build.sh
 ```
 
 ## Usage
