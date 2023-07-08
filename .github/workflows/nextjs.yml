@@ -59,13 +59,15 @@ jobs:
           npm install -g pnpm
           pnpm install
       - name: Build with Next.js
-        run: pnpm next build
+        run: |
+          cd web
+          pnpm next build
       - name: Static HTML export with Next.js
-        run: touch out/.nojekyll
+        run: touch web/out/.nojekyll
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v1
         with:
-          path: ./out
+          path: ./web/out
 
   # Deployment job
   deploy:
